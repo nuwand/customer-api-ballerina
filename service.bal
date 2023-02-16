@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerina/sql;
 import ballerinax/mysql;
+import ballerina/log;
 import ballerinax/mysql.driver as _;
 
 public type Customer record {
@@ -24,11 +25,11 @@ mysql:Client mysqlEp = check new (host = dbHost, user = dbUser, password = dbPas
 # A service representing a network-accessible API
 # bound to port `9090`.
 service / on new http:Listener(9090) {
-
     # A resource get customer given the account id 
     # + accountId - the account id of the customer
     # + return - the customer or an error or nothing
-    resource function get customer/[string accountId]() returns Customer| http:NotFound | error {
+    resource function get customer/[int accountId]() returns Customer | http:NotFound | error {
+        log:printInfo("Method hit");
         Customer|error customer = mysqlEp->queryRow(sqlQuery = `SELECT * FROM customer WHERE account_Id = ${accountId}`);
         if customer is sql:NoRowsError {
             return http:NOT_FOUND;
